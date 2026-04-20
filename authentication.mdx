@@ -1,0 +1,65 @@
+---
+title: "인증"
+description: "AllTalk API 호출 시 apikey 헤더 인증 방법"
+---
+
+AllTalk API는 요청 헤더의 `apikey` 값으로 인증합니다.
+
+<Note>
+  `apikey`, `service`, `groupId` 는 영업 담당자를 통해 제공받습니다.
+  자체 발급 기능은 현재 제공되지 않습니다.
+</Note>
+
+## 헤더 형식
+
+```http
+apikey: {API_KEY}
+Content-Type: application/json
+```
+
+## 예제
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://api.alltalk.co.kr/alimTalk \
+  -H "apikey: a144an3-e708-4ead-b6da-0346005130988" \
+  -H "Content-Type: application/json" \
+  -d @payload.json
+```
+
+```javascript Node.js
+import axios from 'axios';
+
+await axios.post('https://api.alltalk.co.kr/alimTalk', talkData, {
+  headers: { apikey: process.env.ALLTALK_API_KEY },
+});
+```
+
+```python Python
+import os
+import requests
+
+requests.post(
+    'https://api.alltalk.co.kr/alimTalk',
+    json=talk_data,
+    headers={'apikey': os.environ['ALLTALK_API_KEY']},
+)
+```
+</CodeGroup>
+
+## 보안 주의사항
+
+<Warning>
+- `apikey`는 서버 사이드에서만 사용하세요. 프론트엔드나 공개 저장소에 노출되면 안 됩니다.
+- 환경변수 또는 Secret Manager를 통해 관리하세요.
+- 유출이 의심되면 즉시 영업 담당자에게 연락하여 키를 재발급받으세요.
+</Warning>
+
+## 인증 실패 시
+
+| 에러 코드 | 설명 |
+| --- | --- |
+| `ERR_100` | `authToken` 데이터 누락 |
+| `ERR_102` | header 데이터 미일치 (인증 실패) |
+
+자세한 에러 코드는 [에러 코드](/guides/error-codes) 페이지를 참고하세요.

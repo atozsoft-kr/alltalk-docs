@@ -1,0 +1,63 @@
+---
+title: "API 개요"
+description: "AllTalk REST API의 기본 구조 및 공통 규칙"
+---
+
+## Base URL
+
+```
+https://api.alltalk.co.kr
+```
+
+## 공통 요청 형식
+
+- **인증**: `apikey: {API_KEY}` 헤더 필수 ([인증](/authentication) 참조)
+- **Content-Type**: `application/json`
+- **문자 인코딩**: UTF-8
+- **발급 항목**: 영업 담당자를 통해 `apikey`, `service`, `groupId` 발급
+
+## 공통 응답 형식
+
+```json
+{
+  "version": "1.0.0",
+  "status": "success",
+  "code": 200,
+  "datetime": "2023-12-14 11:43:11",
+  "url": "",
+  "message": "",
+  "value": [
+    { "uid": 37668015179, "date": 1750383559053, "status": "OK" }
+  ],
+  "count": 0,
+  "total": 0
+}
+```
+
+| 필드 | 설명 |
+| --- | --- |
+| `version` | API 버전 |
+| `status` | `success` / `fail` |
+| `code` | HTTP 상태 코드 |
+| `datetime` | 응답 시각 (`YYYY-MM-DD HH:mm:ss`) |
+| `message` | 에러 메시지 (실패 시) |
+| `value` | 수신자별 처리 결과 배열 |
+| `value[].uid` | 발송 식별자 |
+| `value[].date` | 발송 시각 (epoch ms) |
+| `value[].status` | 결과 코드 ([에러 코드](/guides/error-codes) 참조) |
+| `count` | 처리된 건수 |
+| `total` | 전체 요청 건수 |
+
+## 지원 엔드포인트
+
+<CardGroup cols={2}>
+  <Card title="메시지 발송" icon="paper-plane" href="/api-reference/messaging/alimtalk">
+    SMS, 알림톡, 친구톡, 브랜드메시지
+  </Card>
+  <Card title="주소록" icon="address-book" href="/api-reference/address/address">
+    수신자 그룹 · 개별 주소 관리
+  </Card>
+  <Card title="발송 내역" icon="list" href="/api-reference/send/list">
+    발송 결과 조회 및 상세
+  </Card>
+</CardGroup>

@@ -1,0 +1,62 @@
+---
+title: "빠른 시작"
+description: "5분 안에 첫 알림톡을 발송해봅니다."
+---
+
+<Steps>
+  <Step title="발급 정보 확보">
+    영업 담당자를 통해 다음 3가지 값을 받습니다.
+
+    - `apikey` — API 인증 키
+    - `service` — 알림톡 서비스 번호
+    - `groupId` — 그룹코드
+
+    <Warning>
+      `apikey`는 외부에 노출되면 안 됩니다. 반드시 서버 사이드에서만 사용하세요.
+    </Warning>
+  </Step>
+
+  <Step title="템플릿 등록">
+    알림톡은 카카오 승인을 받은 템플릿만 발송 가능합니다.
+    영업 담당자에게 템플릿 등록을 요청하고 `template` 코드(BizCode)를 받습니다.
+  </Step>
+
+  <Step title="테스트 발송">
+    받은 값들로 알림톡 한 건을 발송합니다.
+
+    ```javascript
+    import axios from 'axios';
+
+    const contents = `안녕하세요 #{이름}님, 테스트 메시지입니다.`;
+
+    await axios.post('https://api.alltalk.co.kr/alimTalk', {
+      service: 2310085000,
+      template: '10000',
+      groupId: 'G1000000000',
+      message: contents,
+      numbers: [
+        { key: 1, hp: '010-1234-5678', name: '홍길동' },
+      ],
+    }, {
+      headers: { apikey: 'YOUR_API_KEY' },
+    });
+    ```
+  </Step>
+
+  <Step title="발송 결과 확인">
+    응답의 `value[].uid`로 개별 수신자 결과를 확인합니다.
+    `status: "OK"` 는 성공, `KKO_*` 또는 `ERR_*` 는 실패입니다.
+    전체 코드 의미는 [에러 코드](/guides/error-codes) 참조.
+  </Step>
+</Steps>
+
+## 다음 단계
+
+<CardGroup cols={2}>
+  <Card title="알림톡 API 상세" icon="comment-dots" href="/api-reference/messaging/alimtalk">
+    모든 파라미터와 응답 필드
+  </Card>
+  <Card title="대량 발송" icon="users" href="/guides/sending-messages">
+    `numbers` 배열로 다수에게 한 번에 발송
+  </Card>
+</CardGroup>

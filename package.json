@@ -1,0 +1,9 @@
+{
+  "name": "alltalk-docs",
+  "private": true,
+  "description": "AllTalk Developers documentation",
+  "scripts": {
+    "dev": "mintlify dev",
+    "broken-links": "mintlify broken-links"
+  }
+}
