@@ -1,0 +1,89 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "AllTalk Developers",
+  "colors": {
+    "primary": "#FFCD00",
+    "light": "#FFE066",
+    "dark": "#B38F00"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "시작하기",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "authentication"
+            ]
+          },
+          {
+            "group": "참조",
+            "pages": [
+              "guides/error-codes"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API 레퍼런스",
+        "groups": [
+          {
+            "group": "개요",
+            "pages": [
+              "api-reference/introduction"
+            ]
+          },
+          {
+            "group": "메시지 발송",
+            "pages": [
+              "api-reference/messaging/sms",
+              "api-reference/messaging/lms",
+              "api-reference/messaging/alimtalk"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "홈페이지",
+          "href": "https://alltalk.co.kr",
+          "icon": "globe"
+        },
+        {
+          "anchor": "관리자",
+          "href": "https://admin.alltalk.co.kr",
+          "icon": "gauge"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "문의",
+        "href": "mailto:support@alltalk.co.kr"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "관리자",
+      "href": "https://admin.alltalk.co.kr"
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://alltalk.co.kr"
+    }
+  }
+}
