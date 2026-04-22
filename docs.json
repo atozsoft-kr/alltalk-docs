@@ -54,11 +54,11 @@
       "anchors": [
         {
           "anchor": "홈페이지",
-          "href": "https://alltalk.co.kr",
+          "href": "https://www.alltalk.co.kr",
           "icon": "globe"
         },
         {
-          "anchor": "관리자",
+          "anchor": "대시보드",
           "href": "https://admin.alltalk.co.kr",
           "icon": "gauge"
         }
@@ -78,13 +78,13 @@
     ],
     "primary": {
       "type": "button",
-      "label": "관리자",
+      "label": "대시보드",
       "href": "https://admin.alltalk.co.kr"
     }
   },
   "footer": {
     "socials": {
-      "website": "https://alltalk.co.kr"
+      "website": "https://www.alltalk.co.kr"
     }
   }
 }

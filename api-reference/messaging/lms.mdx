@@ -11,10 +11,13 @@ description: "등록된 발신번호를 통해 장문 메시지(LMS)를 전송�
 
 ## Headers
 
-| Header | Type | Description |
-| --- | --- | --- |
-| `apikey` | String | 제공받은 API key |
-| `groupId` | String | 그룹 코드 |
+<ParamField header="apikey" type="string" required>
+  제공받은 API key
+</ParamField>
+
+<ParamField header="groupId" type="string" required>
+  그룹 코드
+</ParamField>
 
 ## Body (JSON)
 
@@ -26,7 +29,7 @@ description: "등록된 발신번호를 통해 장문 메시지(LMS)를 전송�
   발송할 메시지 (최대 2,000바이트)
 </ParamField>
 
-<ParamField body="numbers" type="array" required>
+<ParamField body="numbers" type="string[]" required>
   수신자 핸드폰 번호 배열
 </ParamField>
 
@@ -42,7 +45,7 @@ description: "등록된 발신번호를 통해 장문 메시지(LMS)를 전송�
   메시지 제목
 </ParamField>
 
-<ParamField body="mapping" type="array">
+<ParamField body="mapping" type="object[]">
   가변 변수 매핑 배열. `numbers` 와 동일 순서로 매칭됩니다.
 </ParamField>
 
@@ -51,7 +54,7 @@ description: "등록된 발신번호를 통해 장문 메시지(LMS)를 전송�
 <RequestExample>
 ```javascript Node.js
 const lmsData = {
-  service: 2230082142,
+  service: 1234567890,
   subject: '배송 안내',
   message: `#{name}님, 주문하신 상품이 발송되었습니다.
 
@@ -63,7 +66,7 @@ const lmsData = {
 
 배송 조회는 해당 택배사 홈페이지에서 확인 가능합니다.`,
   numbers: ['01012345678'],
-  groupId: 'G1000000000',
+  groupId: 'YOUR_GROUP_ID',
   callbackNo: '16612460',
   mapping: [
     {
@@ -78,8 +81,8 @@ const lmsData = {
 
 await axios.post('https://api.alltalk.co.kr/sms/lms', lmsData, {
   headers: {
-    apikey: 'a144an3-e708-4ead-b6da-0346005130988',
-    groupId: 'G1000000000',
+    apikey: 'YOUR_API_KEY',
+    groupId: 'YOUR_GROUP_ID',
   },
 }).then((res) => {
   console.log('전송 결과:', res.data);

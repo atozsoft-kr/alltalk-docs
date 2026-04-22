@@ -6,8 +6,9 @@ description: "AllTalk API 호출 시 apikey 헤더 인증 방법"
 AllTalk API는 요청 헤더의 `apikey` 값으로 인증합니다.
 
 <Note>
-  `apikey`, `service`, `groupId` 는 영업 담당자를 통해 제공받습니다.
-  자체 발급 기능은 현재 제공되지 않습니다.
+  `apikey`, `service`, `groupId` 는 [관리자](https://admin.alltalk.co.kr) 로그인 후
+  **내정보 → API / 채널 정보** 탭에서 확인할 수 있습니다.
+  자세한 방법은 [API 키 발급](/guides/getting-credentials) 페이지를 참고하세요.
 </Note>
 
 ## 헤더 형식
@@ -22,7 +23,7 @@ Content-Type: application/json
 <CodeGroup>
 ```bash cURL
 curl -X POST https://api.alltalk.co.kr/alimTalk \
-  -H "apikey: a144an3-e708-4ead-b6da-0346005130988" \
+  -H "apikey: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d @payload.json
 ```
@@ -52,7 +53,7 @@ requests.post(
 <Warning>
 - `apikey`는 서버 사이드에서만 사용하세요. 프론트엔드나 공개 저장소에 노출되면 안 됩니다.
 - 환경변수 또는 Secret Manager를 통해 관리하세요.
-- 유출이 의심되면 즉시 영업 담당자에게 연락하여 키를 재발급받으세요.
+- 유출이 의심되면 즉시 [관리자](https://admin.alltalk.co.kr) **내정보 → API / 채널 정보** 에서 재발급하세요.
 </Warning>
 
 ## 인증 실패 시

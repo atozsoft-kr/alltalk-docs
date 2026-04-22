@@ -31,9 +31,9 @@ description: "5분 안에 첫 알림톡을 발송해봅니다."
     const contents = `안녕하세요 #{이름}님, 테스트 메시지입니다.`;
 
     await axios.post('https://api.alltalk.co.kr/alimTalk', {
-      service: 2310085000,
+      service: 1234567890,
       template: '10000',
-      groupId: 'G1000000000',
+      groupId: 'YOUR_GROUP_ID',
       message: contents,
       numbers: [
         { key: 1, hp: '010-1234-5678', name: '홍길동' },
