@@ -1,66 +1,36 @@
 ---
-title: "Gateway (이중화 발송 채널)"
-description: "장애 격리·이중화가 필요한 고객사를 위한 보조 발송 채널입니다."
+title: "Gateway"
+description: "운영팀 안내를 받은 고객사 전용 발송 채널입니다."
 noindex: true
 ---
 
 <Warning>
-  **비공개 안내 페이지입니다.**
+  **본 채널은 운영팀에서 별도로 안내받은 고객사 전용입니다.**
 
-  이 페이지는 운영팀에서 별도로 안내받은 고객사 전용입니다.
   안내받지 않으셨다면 **[기본 발송 API](/api-reference/messaging/alimtalk)**를 사용해 주세요.
-
-  임의로 본 채널을 호출할 경우 인증 실패 또는 의도치 않은 그룹 단위 차감이
-  발생할 수 있으며, 이로 인한 문의는 정식 지원 범위에 포함되지 않습니다.
+  임의 호출 시 인증 실패 또는 의도치 않은 차감이 발생할 수 있습니다.
 </Warning>
 
-## 개요
-
-`gateway.alltalk.co.kr` 은 기본 API(`api.alltalk.co.kr`)와 **별개의 도메인/인프라로 운영되는 보조 발송 채널**입니다.
-
-이중화·장애 격리가 필요한 고객사가 운영팀과 사전 협의 후 사용합니다.
+## 도메인
 
 ```
-Primary    https://api.alltalk.co.kr        (모든 고객사)
-Secondary  https://gateway.alltalk.co.kr    (이중화 가입 고객사 전용)
+https://gateway.alltalk.co.kr
 ```
-
-## 기본 API와의 차이
-
-| 항목 | api.alltalk.co.kr | gateway.alltalk.co.kr |
-| --- | --- | --- |
-| 발송 응답 | 즉시 결과 (`OK` / `KKO_*`) | 접수 응답 (`DHN_PENDING`) |
-| 최종 결과 확인 | 응답 본문에 포함 | [`GET /result/:id`](/api-reference/gateway/result) 별도 호출 |
-| 결과 갱신 시점 | 응답 시점 | 발송 후 약 5분 이내 |
-| 인증 (apikey, groupId) | 동일 | 동일 |
-| 단가 | 그룹별 등록 단가 | 동일 |
-| 대체문자 fallback | 자동 | 동일 |
-
-<Note>
-  본 채널은 **결과가 비동기**로 확정됩니다. 발송 즉시 응답에는 `DHN_PENDING`(접수 완료) 상태가 들어 있으며,
-  최종 `OK`/`FAILED`는 약 5분 이내 자동 갱신됩니다.
-
-  결과 확인은 [발송 결과 조회](/api-reference/gateway/result) 엔드포인트를 사용하세요.
-</Note>
-
-## 사용 시나리오
-
-- 기본 API 장애 시 자동 fallback (클라이언트 측 try-catch)
-- 핵심 트래픽의 이중화 발송
-- 인프라 분리 운영 정책상 별도 진입점 필요한 경우
-
-## 사용 가능 여부 확인
-
-- 운영팀 안내 메일 또는 별도 공문에 도메인이 명시되어 있는 경우만 사용 가능합니다.
-- 본 채널 사용 자격이 부여되지 않은 그룹의 `apikey`로 호출하면 정상 응답되지 않거나 의도치 않은 차감이 발생할 수 있습니다.
-- 사용 자격 또는 도입 문의: **support@alltalk.co.kr**
 
 ## 엔드포인트
 
 | 메서드 | 경로 | 설명 |
 | --- | --- | --- |
-| POST | `/alimTalk` | 알림톡 발송 |
-| GET | `/result/:id` | 단건 발송 결과 조회 |
-| GET | `/result/sendGroup/:sendGroupId` | sendGroup 단위 일괄 결과 조회 |
+| POST | [/alimTalk](/api-reference/gateway/alimtalk) | 알림톡 발송 |
+| GET | [/result/:id](/api-reference/gateway/result) | 단건 발송 결과 조회 |
+| GET | [/result/sendGroup/:sendGroupId](/api-reference/gateway/result) | sendGroup 단위 일괄 결과 조회 |
 
-상세 spec은 좌측 가이드를 참조하세요.
+<Note>
+  본 채널은 발송 결과가 비동기로 확정됩니다. 발송 응답에는 `DHN_PENDING`(접수 완료) 상태가 들어 있으며,
+  최종 결과는 약 5분 이내 자동 갱신됩니다. 결과 확인은 [`GET /result/:id`](/api-reference/gateway/result) 를 사용하세요.
+</Note>
+
+## 문의
+
+- 이메일: **support@alltalk.co.kr**
+- 인증 정보(`apikey`, `groupId`), 발신프로필 키는 운영팀 안내 메일을 참고하세요.
