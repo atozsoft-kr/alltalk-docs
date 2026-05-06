@@ -1,0 +1,167 @@
+---
+title: "알림톡 발송 (Gateway)"
+api: "POST https://gateway.alltalk.co.kr/alimTalk"
+description: "이중화 발송 채널을 통한 알림톡 발송. 발송 결과는 비동기로 확정됩니다."
+noindex: true
+---
+
+<Warning>
+  본 엔드포인트는 [Gateway 채널](/api-reference/gateway/introduction) 사용 자격이 부여된 그룹 전용입니다.
+  일반 고객사는 [기본 발송 API](/api-reference/messaging/alimtalk)를 사용해 주세요.
+</Warning>
+
+## Base URL
+
+```
+https://gateway.alltalk.co.kr
+```
+
+## Headers
+
+<ParamField header="apikey" type="string" required>
+  제공받은 API key
+</ParamField>
+
+<ParamField header="groupid" type="string">
+  그룹 코드. `body.groupId`로 대체 가능합니다.
+</ParamField>
+
+## Body (JSON)
+
+<ParamField body="groupId" type="string" required>
+  그룹 코드
+</ParamField>
+
+<ParamField body="service" type="string" required>
+  발신프로필 키 (sender key). 운영팀 안내 받은 값
+</ParamField>
+
+<ParamField body="template" type="string" required>
+  등록된 템플릿 코드
+</ParamField>
+
+<ParamField body="message" type="string" required>
+  등록된 템플릿 본문과 일치하는 메시지. 가변 변수는 호출 측에서 미리 치환하거나 `numbers[].VARn`으로 매핑 가능합니다.
+</ParamField>
+
+<ParamField body="numbers" type="object[]" required>
+  수신자 배열. 각 항목 구성:
+  - `hp` (string): 수신자 휴대폰 번호 (필수)
+  - `name` (string): 수신자 이름. 메시지의 `#{이름}` 또는 `#{name}` 자리 치환에 사용
+  - `VAR1`, `VAR2`, ... (string): 가변 변수 매핑값
+</ParamField>
+
+<ParamField body="title" type="string">
+  강조 표기 템플릿인 경우 필수
+</ParamField>
+
+<ParamField body="buttons" type="object[]">
+  템플릿에 등록된 버튼 정보. 명시 시 우선 사용되며, 미명시 시 시스템에서 등록된 버튼을 자동 조회합니다.
+
+  각 항목 구성:
+  - `type` (string): `WL` / `AL` / `BK` / `MD`
+  - `name` (string): 버튼 표시명
+  - `url_pc`, `url_mobile` (string): `WL` 타입 시 사용
+  - `scheme_android`, `scheme_ios` (string): `AL` 타입 시 사용
+</ParamField>
+
+<ParamField body="alter" type="boolean" default="false">
+  알림톡 실패 시 SMS 대체문자 발송 여부
+</ParamField>
+
+<ParamField body="alterMessage" type="string">
+  대체문자 본문. `alter=true` 일 때 사용
+</ParamField>
+
+<ParamField body="callbackNo" type="string">
+  대체문자 발신번호. `alter=true` 일 때 사용
+</ParamField>
+
+<ParamField body="channelId" type="string">
+  채널 ID
+</ParamField>
+
+## 동작
+
+1. 본 API는 발송 요청을 **접수**하고 즉시 응답합니다.
+2. 응답 본문의 `results[].status`는 접수 단계 결과입니다 (`DHN_PENDING` = 정상 접수, `FAILED`/`ERROR` = 접수 실패).
+3. 실제 카카오톡 발송 결과(`OK` / `FAILED` / `GIVEUP`)는 **약 5분 이내** 자동 갱신됩니다.
+4. 갱신된 최종 결과는 [`GET /result/:id`](/api-reference/gateway/result) 로 조회합니다.
+
+## 차감 정책
+
+- 접수 성공한 건만 즉시 차감됩니다 (실패는 차감 없음).
+- 최종 결과가 `FAILED`로 확정되면 접수 시 차감된 금액이 자동 환불됩니다.
+- 접수는 성공했으나 DB 저장에 실패한 경우(`status: ERROR`) 차감되지 않습니다.
+
+## 예제
+
+<RequestExample>
+```javascript Node.js
+const talkData = {
+  groupId: 'YOUR_GROUP_ID',
+  service: 'YOUR_SENDER_KEY',
+  template: 'AT_TEMPLATE_001',
+  message: '강혜진님, 테스트 알림톡입니다.\n주문번호: 20260330002',
+  numbers: [
+    { hp: '01012345678', name: '강혜진' }
+  ],
+  buttons: [
+    {
+      type: 'WL',
+      name: '바로가기',
+      url_pc: 'https://example.com',
+      url_mobile: 'https://example.com',
+    },
+  ],
+};
+
+const { data } = await axios.post(
+  'https://gateway.alltalk.co.kr/alimTalk',
+  talkData,
+  { headers: { apikey: 'YOUR_API_KEY', groupid: 'YOUR_GROUP_ID' } },
+);
+console.log(data.results[0].id); // 결과 조회 시 사용
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "sendGroupId": "0d8398a2-979f-4b26-bdeb-2b4957f47b78",
+  "accepted": 1,
+  "total": 1,
+  "results": [
+    {
+      "id": "89a3066e-a7f2-4e39-9bdd-b40f766ea658",
+      "uid": "dmotj0o7o0ij1c8",
+      "mobile": "01012345678",
+      "status": "DHN_PENDING",
+      "rawStatus": "00"
+    }
+  ]
+}
+```
+</ResponseExample>
+
+## 응답 필드
+
+| 필드 | 설명 |
+| --- | --- |
+| `success` | 요청 처리 성공 여부 |
+| `sendGroupId` | 본 발송의 sendGroup 식별자. 일괄 결과 조회 시 사용 |
+| `accepted` | 정상 접수된 건수 |
+| `total` | 전체 요청 건수 |
+| `results[].id` | 수신자별 발송 식별자. **단건 결과 조회 시 이 값 사용** |
+| `results[].uid` | 발송 메시지 식별자 (20자 이내) |
+| `results[].mobile` | 수신자 번호 |
+| `results[].status` | 접수 단계 결과: `DHN_PENDING` / `FAILED` / `ERROR` |
+| `results[].rawStatus` | 게이트웨이 원본 응답 코드 |
+| `results[].error` | 접수 실패 시 사유 |
+
+## 참고
+
+- **결과는 약 5분 후 갱신**되므로, 응답에 포함된 `DHN_PENDING`을 최종 결과로 판단하지 마세요.
+- 일정 시간이 지나도 결과가 갱신되지 않으면 `GIVEUP`으로 처리됩니다 (장애 케이스).
+- 가변 변수 치환 규칙은 [기본 알림톡 API](/api-reference/messaging/alimtalk)와 동일합니다.

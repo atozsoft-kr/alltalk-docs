@@ -1,0 +1,215 @@
+---
+title: "발송 결과 조회 (Gateway)"
+api: "GET https://gateway.alltalk.co.kr/result/{id}"
+description: "Gateway 채널로 발송한 메시지의 최종 결과를 조회합니다."
+noindex: true
+---
+
+<Warning>
+  본 엔드포인트는 [Gateway 채널](/api-reference/gateway/introduction) 사용 자격이 부여된 그룹 전용입니다.
+</Warning>
+
+## 개요
+
+Gateway 채널은 **결과가 비동기로 확정**되므로, 발송 응답 시점에는 `DHN_PENDING` 상태입니다.
+약 5분 이내 자동 갱신되는 최종 결과를 본 엔드포인트로 조회합니다.
+
+```
+GET  /result/:id                       단건 조회 (id = 발송 응답의 results[].id)
+GET  /result/sendGroup/:sendGroupId    sendGroup 단위 일괄 조회 (페이지네이션)
+```
+
+## 단건 조회
+
+### Headers
+
+<ParamField header="apikey" type="string" required>
+  제공받은 API key
+</ParamField>
+
+<ParamField header="groupid" type="string" required>
+  그룹 코드 (권한 검증)
+</ParamField>
+
+### Path
+
+<ParamField path="id" type="string" required>
+  발송 응답에서 받은 `results[].id` (UUID)
+</ParamField>
+
+### 예제
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://gateway.alltalk.co.kr/result/89a3066e-a7f2-4e39-9bdd-b40f766ea658" \
+  -H "apikey: YOUR_API_KEY" \
+  -H "groupid: YOUR_GROUP_ID"
+```
+
+```javascript Node.js
+const { data } = await axios.get(
+  `https://gateway.alltalk.co.kr/result/${sendId}`,
+  { headers: { apikey: 'YOUR_API_KEY', groupid: 'YOUR_GROUP_ID' } },
+);
+console.log(data.result); // 'OK' | 'FAILED' | 'DHN_PENDING' | 'GIVEUP'
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 (OK)
+{
+  "id": "89a3066e-a7f2-4e39-9bdd-b40f766ea658",
+  "uid": "dmotj0o7o0ij1c8",
+  "mobile": "01012345678",
+  "type": "at",
+  "result": "OK",
+  "status": "OK",
+  "sendGroupId": "0d8398a2-979f-4b26-bdeb-2b4957f47b78",
+  "date": 1778039849583,
+  "service": "YOUR_SENDER_KEY",
+  "template": "AT_TEMPLATE_001"
+}
+```
+
+```json 200 (PENDING)
+{
+  "id": "89a3066e-...",
+  "uid": "dmotj0o7o0ij1c8",
+  "mobile": "01012345678",
+  "type": "at",
+  "result": "DHN_PENDING",
+  "status": "ENABLE",
+  "sendGroupId": "0d8398a2-...",
+  "date": 1778039849583,
+  "service": "YOUR_SENDER_KEY",
+  "template": "AT_TEMPLATE_001",
+  "rawStatus": "00"
+}
+```
+
+```json 200 (FAILED)
+{
+  "id": "89a3066e-...",
+  "uid": "dmotj0o7o0ij1c8",
+  "mobile": "01012345678",
+  "type": "at",
+  "result": "FAILED",
+  "status": "FAILED",
+  "sendGroupId": "0d8398a2-...",
+  "date": 1778039849583,
+  "service": "YOUR_SENDER_KEY",
+  "template": "AT_TEMPLATE_001",
+  "errorMessage": "TemplateNotFoundException"
+}
+```
+
+```json 404
+{ "error": "발송 정보를 찾을 수 없습니다." }
+```
+</ResponseExample>
+
+### 응답 필드
+
+| 필드 | 설명 |
+| --- | --- |
+| `id` | 발송 식별자 |
+| `uid` | 메시지 식별자 |
+| `mobile` | 수신자 번호 |
+| `type` | 메시지 타입 (`at` / `ai` 등) |
+| `result` | **최종 결과**. `DHN_PENDING` / `OK` / `FAILED` / `GIVEUP` |
+| `status` | 발송 상태 |
+| `sendGroupId` | sendGroup 식별자 |
+| `date` | 발송 시각 (epoch ms) |
+| `service` | 발신프로필 키 |
+| `template` | 템플릿 코드 |
+| `errorMessage` | 실패 시 사유 |
+| `rawStatus` | 게이트웨이 원본 응답 코드 |
+
+### result 값 설명
+
+| 값 | 의미 |
+| --- | --- |
+| `DHN_PENDING` | 접수 완료, 결과 갱신 대기 (약 5분 이내) |
+| `OK` | 발송 성공 |
+| `FAILED` | 발송 실패. `errorMessage` 참조 (실패분은 자동 환불) |
+| `GIVEUP` | 결과 갱신 타임아웃 (장기간 결과 미수신) |
+
+---
+
+## sendGroup 단위 일괄 조회
+
+한 번의 발송 요청(`sendGroupId` 단위)으로 보낸 모든 메시지의 결과를 일괄 조회합니다.
+
+### Headers / Path / Query
+
+<ParamField header="apikey" type="string" required>
+  제공받은 API key
+</ParamField>
+
+<ParamField header="groupid" type="string" required>
+  그룹 코드 (권한 검증)
+</ParamField>
+
+<ParamField path="sendGroupId" type="string" required>
+  발송 응답의 `sendGroupId`
+</ParamField>
+
+<ParamField query="limit" type="number" default="100">
+  최대 조회 건수 (1 ~ 500)
+</ParamField>
+
+<ParamField query="lastKey" type="string">
+  페이지네이션 토큰. 이전 응답의 `lastKey` 값을 그대로 전달
+</ParamField>
+
+### 예제
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://gateway.alltalk.co.kr/result/sendGroup/0d8398a2-979f-4b26-bdeb-2b4957f47b78?limit=100" \
+  -H "apikey: YOUR_API_KEY" \
+  -H "groupid: YOUR_GROUP_ID"
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "items": [
+    {
+      "id": "89a3066e-...",
+      "uid": "dmotj0o7o0ij1c8",
+      "mobile": "01012345678",
+      "type": "at",
+      "result": "OK",
+      "date": 1778039849583
+    },
+    {
+      "id": "another-uuid",
+      "uid": "dmotjxxxx",
+      "mobile": "01098765432",
+      "type": "at",
+      "result": "FAILED",
+      "errorMessage": "InvalidPhoneNumberException",
+      "date": 1778039849583
+    }
+  ],
+  "count": 2,
+  "lastKey": "eyJpZCI6e..."
+}
+```
+</ResponseExample>
+
+### 응답 필드
+
+| 필드 | 설명 |
+| --- | --- |
+| `items[]` | 발송 레코드 배열 (단건 조회 응답과 동일 필드) |
+| `count` | 본 응답에 포함된 건수 |
+| `lastKey` | 다음 페이지 토큰. 더 이상 데이터 없으면 미포함 |
+
+## 참고
+
+- 결과 조회는 호출자의 `groupid`와 발송 레코드의 `groupId`가 일치해야 합니다. 다른 그룹의 결과는 조회되지 않습니다.
+- `result: "DHN_PENDING"` 응답을 받으면 약 5분 후 재조회하세요. 즉시 재시도 무의미.
+- 대량 일괄 조회 시 페이지네이션은 `lastKey`를 그대로 다음 요청에 전달하면 됩니다.
