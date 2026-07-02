@@ -44,7 +44,8 @@
             "pages": [
               "api-reference/messaging/sms",
               "api-reference/messaging/lms",
-              "api-reference/messaging/alimtalk"
+              "api-reference/messaging/alimtalk",
+              "api-reference/messaging/brandmessage"
             ]
           }
         ]
