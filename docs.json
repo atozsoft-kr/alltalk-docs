@@ -49,20 +49,6 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "Gateway",
-        "hidden": true,
-        "groups": [
-          {
-            "group": "Gateway 발송 (이중화)",
-            "pages": [
-              "api-reference/gateway/introduction",
-              "api-reference/gateway/alimtalk",
-              "api-reference/gateway/result"
-            ]
-          }
-        ]
       }
     ],
     "global": {
